@@ -1,8 +1,8 @@
-fastd_proto  = Proto("fastd", "Fast and Secure Tunneling Daemon")
+fastd_proto  = Proto("fastd", "F.A.S.T.D")
 
 local fastd_types = {
-	[1] = "fastd Handshake Packet",
-	[2] = "fastd Payload Packet",
+	[1] = "Handshake Packet",
+	[2] = "Payload Packet",
 }
 
 local f = fastd_proto.fields
@@ -10,7 +10,7 @@ local f = fastd_proto.fields
 f.type = ProtoField.uint8("fastd.type", "Type", base.HEX, fastd_types)
 
 function fastd_proto.dissector(buffer, pinfo, tree)
-   local subtree = tree:add(fastd_proto, buffer, "FASTD")
+   local subtree = tree:add(fastd_proto, buffer)
    subtree:add(f.type, buffer(0,1))
 
    ethernet_dissector = Dissector.get("eth")
