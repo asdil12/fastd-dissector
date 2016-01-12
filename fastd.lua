@@ -43,6 +43,8 @@ function fastd_proto.dissector(buffer, pinfo, tree)
 	local subtree = tree:add(fastd_proto, buffer)
 	subtree:add(f.type, buffer(0,1))
 	if buffer(0,1):uint() == 1 then
+		pinfo.cols.protocol = "FASTD"
+		pinfo.cols.info = "Handshake"
 		tlv_records_len = buffer(2,2):uint()
 		offset = 4
 		while (offset-4) < tlv_records_len do
@@ -51,6 +53,7 @@ function fastd_proto.dissector(buffer, pinfo, tree)
 			offset = offset + 4
 			if record_type == 0x00 then
 				subtree:add(f.handshake_type, buffer(offset,record_length))
+				pinfo.cols.info:append(" (Type: " .. handshake_types[buffer(offset,record_length):uint()] .. ")")
 			elseif record_type == 0x01 then
 				subtree:add(f.reply_code, buffer(offset,record_length))
 			elseif record_type == 0x04 then
