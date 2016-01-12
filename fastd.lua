@@ -45,6 +45,7 @@ function fastd_proto.dissector(buffer, pinfo, tree)
 	if buffer(0,1):uint() == 1 then
 		pinfo.cols.protocol = "FASTD"
 		pinfo.cols.info = "Handshake"
+		subtree:append_text(", Handshake")
 		tlv_records_len = buffer(2,2):uint()
 		offset = 4
 		while (offset-4) < tlv_records_len do
@@ -53,7 +54,9 @@ function fastd_proto.dissector(buffer, pinfo, tree)
 			offset = offset + 4
 			if record_type == 0x00 then
 				subtree:add(f.handshake_type, buffer(offset,record_length))
-				pinfo.cols.info:append(" (Type: " .. handshake_types[buffer(offset,record_length):uint()] .. ")")
+				type_str = handshake_types[buffer(offset,record_length):uint()]
+				pinfo.cols.info:append(" (Type: "..type_str..")")
+				subtree:append_text(" ("..type_str..")")
 			elseif record_type == 0x01 then
 				subtree:add(f.reply_code, buffer(offset,record_length))
 			elseif record_type == 0x04 then
@@ -82,6 +85,7 @@ function fastd_proto.dissector(buffer, pinfo, tree)
 			offset = offset + record_length
 		end
 	elseif buffer(0,1):uint() == 2 then
+		subtree:append_text(", Payload")
 		ethernet_dissector = Dissector.get("eth")
 
 		-- skip over the header in front of the encapsulated ethernet frame
